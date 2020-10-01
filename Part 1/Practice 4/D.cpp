@@ -8,11 +8,9 @@ using namespace std;
  const int N=1e5+15;  
  const int M=N*4;           
 
-  int seg[M][41],freq[M][41],a[N];
+  int freq[M][41],a[N];
   
   void build(int v,int l,int r){
-
-    // D3(v,l,r);
 
      if(l==r){
          freq[v][a[l]]=1;
@@ -21,42 +19,30 @@ using namespace std;
          int m=(l+r)>>1;
          build(2*v,l,m); 
          build(2*v+1,m+1,r); 
-         int ct=0,k=0;
-         for(int i=40;i>=1;--i) {
-            freq[v][i]=freq[2*v][i]+freq[2*v+1][i];
-            seg[v][i]=seg[2*v][i]+seg[2*v+1][i]+ct*freq[2*v+1][i];
-            ct+=freq[2*v][i];
-            k+=seg[v][i];
-         }
-         // D2(v,k);
+         for(int i=40;i>=1;--i) 
+         freq[v][i]=freq[2*v][i]+freq[2*v+1][i];
+            
      }
   }
    
-  vector<vector<int>> query(int v,int l,int r,int ql,int qr){
+  vector<int> query(int v,int l,int r,int ql,int qr){
     
-    vector<vector<int>> b(2); b[0].resize(41); b[1].resize(41);
+    vector<int> b; b.resize(41); 
 
     if(ql>qr) return b;
     if(l==ql&&r==qr){
-       for(int i=0;i<=40;++i) { 
-       b[0][i]=freq[v][i];
-       b[1][i]=seg[v][i]; 
-     }    
+       for(int i=0;i<=40;++i)
+        b[i]=freq[v][i];
        return b;
     }
  
     int mid=(l+r)>>1;
     
-    vector<vector<int>> q1(query(2*v,l,mid,ql,min(mid,qr))),q2(query(2*v+1,mid+1,r,max(mid+1,ql),qr));
+    vector<int> q1(query(2*v,l,mid,ql,min(mid,qr))),q2(query(2*v+1,mid+1,r,max(mid+1,ql),qr));
     
-    int ct=0;
-    for(int i=40;i>=1;--i) {
-            b[0][i]=q1[0][i]+q2[0][i];
-            b[1][i]=q1[1][i]+q2[1][i]+ct*q2[0][i];
-            ct+=q1[0][i];
-    }
-
-
+    for(int i=40;i>=1;--i)
+        b[i]=q1[i]+q2[i];
+          
     return b;
 
   }
@@ -74,13 +60,9 @@ using namespace std;
           update(2*v,l,m,id,val);
         else 
           update(2*v+1,m+1,r,id,val);
-       
-         int ct=0;
-         for(int i=40;i>=1;--i) {
+
+         for(int i=40;i>=1;--i)
             freq[v][i]=freq[2*v][i]+freq[2*v+1][i];
-            seg[v][i]=seg[2*v][i]+seg[2*v+1][i]+ct*freq[2*v+1][i];
-            ct+=freq[2*v][i];
-         }
      }
   }
  
@@ -96,11 +78,11 @@ using namespace std;
    while(q--){
             
       int t,x,y; cin>>t>>x>>y;
-
+     
       if(t==1){     
-         vector<vector<int>> ans(query(1,1,n,x,y));
+         vector<int> ans(query(1,1,n,x,y));
          int ct=0;
-         for(int i=0;i<=40;++i) if(ans[0][i]>0) ct++;
+         for(int i=0;i<=40;++i) if(ans[i]>0) ct++;
          cout<<ct<<"\n";
       }
       else{
